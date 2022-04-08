@@ -1,0 +1,20 @@
+.attendance-line {
+    font-size: 20px;
+    font-weight: normal;
+}
+
+.accordion-header-for-btn {
+    display: flex;
+    background-color: #e7f1ff;
+    border-bottom-style: solid;
+    border-bottom-color: lightgrey;
+    border-bottom-width: 1px;
+    justify-content: space-between;
+}
+
+.accordion-header-btn {
+    width: 100%;
+    padding-left: 15px;
+    text-align: left;
+    text-decoration: none;
+}

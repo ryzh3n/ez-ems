@@ -1,0 +1,52 @@
+{% extends "admin_panel_base.html" %}
+{% block admin_page_base %}
+<div class="accordion">
+    <div class="accordion-item">
+        <div class="accordion-body" style="border-bottom-style:solid; border-bottom-color:lightgrey; border-bottom-width:1px; background-color:aliceblue;">
+            <div style="display:flex; align-items:baseline; justify-content: space-between; margin: 0px 10px;">
+                <h5>Employee Tickets</h5>
+                <div style="display:flex; align-items:baseline; justify-content: space-between;">
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                        <input type="hidden" name="action" value="change_view">
+                        <input type="hidden" name="view" value="employee_profiles">
+                        <div class="input-group" style="max-width:300px;">
+                                <input class="form-control" type="text" id="search_value" value="{{search_value}}">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" onclick="searchTickets()">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+<!--                <hr style="margin:0px;">-->
+        <div class="accordion-body" style="display:flex; flex-wrap:wrap;">
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Creator</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in employee_tickets %}
+                    <tr class="row-item" onclick="readNotification('{{row.id}}')" data-toggle="modal" data-target="#view_notification_modal">
+                        <td scope="row">{{row.id}}</td>
+                        <td>{{row.title}}</td>
+                        <td>{{row.created_by}}</td>
+                        <td>{{row.date}}</td>
+                        <td>{{row.time}}</td>
+                        <td>{{row.status}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

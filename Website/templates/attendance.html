@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row">
+    <div class="col" style="max-width:800px;">
+        <div class="accordion" id="accordionAttendance">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAttendance">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAttendance" aria-expanded="true" aria-controls="collapseAttendance">
+                Attendance
+              </button>
+            </h2>
+            <div id="collapseAttendance" class="accordion-collapse collapse show" aria-labelledby="headingAttendance" data-bs-parent="#accordionAttendance">
+                {% if attendance == [] %}
+                <div class="accordion-body">
+                    <h4>Looks like you have not taken any attendances</h4>
+                </div>
+                {% else %}
+                {% for row in attendance %}
+                  <div class="accordion-body">
+                      <div class="h3">{{row.date}}
+                        <span class="attendance-line">{{row.day}}</span>
+                      </div>
+                      <div class="h4" style="color:
+                        {% for row2 in types %}
+                            {% if row2.name == row.status %}
+                                {{row2.color}}
+                            {% endif %}
+                        {% endfor %}
+                        ;">{{row.status}}
+                        <span class="attendance-line" style="color:black;">{{row.checkin_time}} - {{row.checkout_time}}</span>
+                      </div>
+                  </div>
+                  <hr style="margin:0px;">
+                {% endfor %}
+                {% endif %}
+            </div>
+            </button>
+          </div>
+        </div>
+    </div>
+    <div class="col" style="max-width:400px;">
+        <div class="accordion" id="accordionOverall">
+          <div class="accordion-item">
+            <div class="accordion-header dropdown">
+                <button class="btn btn-info dropdown-toggle btn-lg btn-block" style="width:100%;" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{current_month}}
+                </button>
+                <div class="dropdown-menu" style="width:100%;" aria-labelledby="dropdownMenuButton">
+                    <form method="post">
+                        <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                        <input type="hidden" name="task" value="chg_month">
+                    {% for a in available_months %}
+                        <input name="input" type="submit" value="{{a}}" class="dropdown-item" style="text-align: center; font-size:20px;">
+                    {% endfor %}
+                    </form>
+                </div>
+            </div>
+              <div class="accordion-body">
+                  <h4 style="text-align:center;">Overall Monthly Attendance</h4>
+                  <h2 style="text-align:center;">
+                      {% if percentage %}
+                      {{percentage}}%
+                      {% else %}
+                      0%
+                      {% endif %}
+                  </h2>
+                  <div style="text-align: center;">
+                      <form method="post">
+                          <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                          <input type="hidden" name="task" value="sign_att">
+                          <button class="btn btn-info" type="submit" style="font-size:20px;">Sign Attendance</button>
+                      </form>
+                  </div>
+
+              </div>
+              <hr style="margin:0px;">
+              <div class="accordion-body">
+                  {% for row in types %}
+                  <div class="row">
+                      <div class="col" style="max-width:50px;">
+                          <h4 class="attendance-line" style="text-align:center;">{{row.icon}}</h4>
+                      </div>
+                      <div class="col" style="max-width:350px;">
+                          <h4 class="attendance-line">
+                              <strong style="color:{{row.color}};">{{row.name}}</strong> - {{total_attendance_varieties[row.name]}}
+                          </h4>
+                      </div>
+                  </div>
+                  {% endfor %}
+              </div>
+            </div>
+            </button>
+          </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

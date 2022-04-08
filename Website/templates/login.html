@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form method="POST" style="width: 500px; margin: auto">
+    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+    <h3 align="center">Login</h3>
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input
+            type="text"
+            class="form-control"
+            id="username"
+            name="username"
+            placeholder="Enter Username">
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            placeholder="Enter Password">
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+{% endblock %}

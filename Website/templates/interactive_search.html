@@ -1,0 +1,237 @@
+{% if category == 'supervisors' %}
+<div id="found_supervisor">
+    {% for row in supervisors%}
+    <button type="button" class="btn btn-info" onclick="changeSupervisor('{{row.id}}', '{{row.name}}');">{{row.name}}</button>
+    {% endfor %}
+</div>
+{% elif category == 'job_positions' %}
+<div id="job_position" class="mb-3">
+    <label class="form-label">Job Position</label>
+    <select required class="form-control" name="job_position">
+        {% for row in job_positions %}
+        <option value="{{row.id}}">{{row.name}}</option>
+        {% endfor %}
+    </select>
+</div>
+{% elif category == 'receivers' %}
+<div id="receivers" class="mb-3 row">
+    <label class="col-sm-2 col-form-label">Search Results:</label>
+    <div class="col-sm-10 alert alert-success" role="alert">
+        {% for row in results %}
+            {% if row[1].name not in exclude_search %}
+                <button type="button" class="btn btn-info" onclick="addReceivers('{{row[1].name}}', '{{row[0]}}')" style="margin:2px;">{{row[1].name}}</button>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% elif category == 'supervisees' %}
+<div id="receivers" class="mb-3 row">
+    <label class="col-sm-3 col-form-label">Search Results:</label>
+    <div class="col-sm-9 alert alert-success" role="alert">
+        {% for row in results %}
+            {% if row[1].name not in exclude_search %}
+                <button type="button" class="btn btn-info" onclick="addReceivers('{{row[1].name}}', '{{row[0]}}')" style="margin:2px;">{{row[1].name}}</button>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% elif category == 'read_notification' %}
+<div id="notification_content" class="modal-content">
+    <div class="modal-header">
+        <h4 class="modal-title">Viewing Notification #{{data.id}}</h4>
+    </div>
+    <div class="modal-body">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="mb-3 row">
+                        <label class="col-sm-2 col-form-label">Sender:</label>
+                        <div class="col-sm-10">
+                            <div class="form-control">
+                                <button class="btn btn-info">{{data.sender}}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-sm-2 col-form-label">Receiver:</label>
+                        <div class="col-sm-10">
+                            <div class="form-control">
+                                <button class="btn btn-info" onclick="redirectProfile({{receivers}})">{{data.receiver}}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-sm-2 col-form-label">Title:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" type="text" readonly>{{data.title}}</textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="col-sm-2 col-form-label">Message:</label>
+                        <textarea class="form-control" rows="5" readonly>{{data.message}}</textarea>
+                    </div>
+                    <h6>Sent on: {{data.date}} ({{data.day}}), {{data.time}}</h6>
+                </div>
+                {% if multi == True %}
+                <div class="col">
+                    <div class="mb-3">
+                        <h4>Receiver List</h4>
+                        <table class="table table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Employee ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in receivers %}
+                                <tr>
+                                    <td>
+                                        <button class="btn btn-link" type="button" onclick="redirectProfile({{r.id}})" style="padding:0px;">
+                                            {{r}}
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+    </div>
+</div>
+{% elif category == 'read_task' %}
+<div id="task_content" class="modal-content">
+    <div class="modal-header">
+        <h4 class="modal-title">Viewing Task #{{data.id}}</h4>
+    </div>
+    <div class="modal-body">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label">Creator:</label>
+                        <div class="col-sm-8">
+                            <div class="form-control">
+                                <button class="btn btn-info">{{data.created_by}}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label">Title:</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" readonly>{{data.title}}</textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label">Assigned On:</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="datetime-local" value="{{data.date_time_created}}" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label">Due Date:</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="datetime-local" value="{{data.due_date_time}}" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label">Accomplished:</label>
+                        <div class="col-sm-8">
+                            {% if data.date_time_ended %}
+                            <input class="form-control" type="datetime-local" value="{{data.date_time_ended}}" readonly>
+                            {% else %}
+                            <input class="form-control" type="text" value="Not Completed Yet" readonly>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="col-sm-2 col-form-label">Message:</label>
+                        <textarea class="form-control" rows="5" readonly>{{data.message}}</textarea>
+                    </div>
+                </div>
+                {% if data.type == 'Group' %}
+                <div class="col" style="border-left: 1px solid lightgray">
+                    <div class="mb-3">
+                        <h4>Ongoing List</h4>
+                        <table class="table table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Date Accomplished</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in tasks %}
+                                <tr>
+                                    <td>
+                                        <button class="btn btn-link" type="button" onclick="redirectProfile({{task.task.id}})" style="padding:0px;">
+                                            {{task.task.name}}
+                                        </button>
+                                    </td>
+                                    <td>{% if task.date_time_ended %}{{task.date_time_ended}}{% else %}--{% endif %}</td>
+                                    <td>{% if task.date_time_ended %}✔️{% else %}❌{% endif %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+    </div>
+</div>
+{% elif category == 'read_payslip' %}
+<div id="payslip_content" class="modal-content">
+    <div class="modal-header">
+        <h4 class="modal-title">Viewing Payslip #{{data.id}}</h4>
+    </div>
+    <div class="modal-body">
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">Sender:</label>
+            <div class="col-sm-10">
+                <div class="form-control">
+                    <button class="btn btn-info">{{data.generated_by}}</button>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">Receiver:</label>
+            <div class="col-sm-10">
+                <div class="form-control">
+                    <button class="btn btn-info" onclick="redirectProfile({{data.payslip.id}})">{{data.payslip.name}}</button>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">Amount:</label>
+            <div class="col-sm-10">
+                <input class="form-control" type="number" value="{{data.total_pay_amount}}" readonly>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">Time:</label>
+            <div class="col-sm-10">
+                <input class="form-control" type="datetime-local" value="{{data.datetime}}" readonly>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="col-sm-2 col-form-label">Description:</label>
+            <textarea class="form-control" rows="5" readonly>{{data.description}}</textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+    </div>
+</div>
+{% endif %}

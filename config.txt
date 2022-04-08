@@ -1,0 +1,10 @@
+[Configurations]
+host = 127.0.0.1
+port = 5000
+secret_key = laizhen828
+mysql_host = 127.0.0.1
+mysql_port = 3306
+mysql_user = dbadmin
+mysql_password = dbadmin123
+mysql_db_name = fyp_ez_ems
+

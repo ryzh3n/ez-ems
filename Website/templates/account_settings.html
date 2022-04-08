@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 align="center">Account Settings</h3>
+
+<form method="POST" style="width: 500px; margin: auto">
+    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+    <div class="form-group row">
+        <label for="username" class="col-sm-2 col-form-label">Username</label>
+        <div class="mb-2 mr-sm-2">
+        <input
+            type="text"
+            readonly
+            class="form-control"
+            id="username"
+            name="username"
+            value="{{ username }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="email" class="col-sm-2 col-form-label">Email</label>
+        <div class="mb-2 mr-sm-2">
+        <input
+            type="text"
+            readonly
+            class="form-control"
+            id="email"
+            name="email"
+            value="{{ email }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="password" class="col-sm-2 col-form-label">Password</label>
+        <div class="mb-2 mr-sm-2">
+        <input
+            type="password"
+            readonly
+            class="form-control"
+            id="password"
+            name="password"
+            value="1234567890">
+        </div>
+        <a class="btn btn-primary col-sm-1.5" href="{{ url_for('views.change_password') }}">Change Password</a>
+    </div>
+
+    <br />
+
+</form>
+{% endblock %}

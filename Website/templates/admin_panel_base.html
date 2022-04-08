@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style type="text/css" >
+    .accordion-header-for-btn{
+        display:flex;
+        background-color: #e7f1ff;
+        border-bottom-style: solid;
+        border-bottom-color: lightgrey;
+        border-bottom-width: 1px;
+        justify-content: space-between;
+    }
+    .accordion-header-btn{
+        width:100%;
+        padding-left:15px;
+        text-align:left;
+        text-decoration:none;
+    }
+    .card:hover{
+        box-shadow: 0 0 0 1px rgb(0 0 0 / 20%);
+        cursor: pointer;
+    }
+    .row-item:hover{
+        cursor: pointer;
+    }
+</style>
+
+
+<br>
+<div class="row">
+    <div class="col" style="max-width:200px;">
+        <div class="accordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button">
+                        Menu
+                    </button>
+                </h2>
+                <div class="accordion-body">
+                    <a href="/admin_panel/general_settings" class="btn btn-outline-dark" style="margin:3px 0px;">General Settings</a>
+                    <a href="/admin_panel/attendance_list" class="btn btn-outline-dark" style="margin:3px 0px;">Attendance List</a>
+                    <a href="/admin_panel/employee_profiles" class="btn btn-outline-dark" style="margin:3px 0px;">Employee Profiles</a>
+                    <a href="/admin_panel/employee_tickets" class="btn btn-outline-dark" style="margin:3px 0px;">Employee Tickets</a>
+                    <a href="/admin_panel/notification_center" class="btn btn-outline-dark" style="margin:3px 0px;">Notification Center</a>
+                    <a href="/admin_panel/task_assignment" class="btn btn-outline-dark" style="margin:3px 0px;">Task Assignment</a>
+                    <a href="/admin_panel/attendance_machines" class="btn btn-outline-dark" style="margin:3px 0px;">Attendance Machines</a>
+                    <a href="/admin_panel/payroll_settings" class="btn btn-outline-dark" style="margin:3px 0px;">Payroll Settings</a>
+                    <a href="/admin_panel/system_logging" class="btn btn-outline-dark" style="margin:3px 0px;">System Logging</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="max-width:1000px;">
+        <div id="admin_page_content">
+            {% block admin_page_base %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

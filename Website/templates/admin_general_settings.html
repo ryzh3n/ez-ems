@@ -1,0 +1,257 @@
+{% extends "admin_panel_base.html" %}
+{% block admin_page_base %}
+<div id="AttendanceType" class="modal fade">
+    <div class="modal-dialog" style="max-width:400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add New Attendance Type</h4>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                    <div class="container">
+                        <div class="row">
+                            <label class="form-label">Enter the following details appropriately.</label>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Type Name: </label>
+                            <input type="text" class="form-control" name="name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Icon: </label>
+                            <input type="text" class="form-control" name="icon">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Colour: </label>
+                            <input type="color" class="form-control" name="color">
+                        </div>
+                        <div class="mb-3">
+                            <label class="col-sm-5">Enabled by default?: </label>
+                            <input type="checkbox" class="form-control form-check-input" name="enabled">
+                        </div>
+
+                        <div class="div" style="text-align:center;">
+                            <input type="hidden" name="action" value="new_attendance_rule">
+                            <button type="submit" class="btn btn-dark" >Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="NewDepartment" class="modal fade">
+    <div class="modal-dialog" style="max-width:400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add New Department</h4>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                    <div class="container">
+                        <label class="form-label">Enter the following details appropriately.</label>
+                        <div class="mb-3">
+                            <label class="form-label">Name: </label>
+                            <input class="form-control" type="text" name="department_name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Workdays: </label>
+                            <div class="form-control">
+                                <div class="form-check form-check-inline" style="width:58px;">
+                                    <input class="form-check-input" type="checkbox" name="Mon">
+                                    <label class="form-check-label">Mon</label>
+                                </div>
+                                <div class="form-check form-check-inline" style="width:58px;">
+                                    <input class="form-check-input" type="checkbox" name="Tue">
+                                    <label class="form-check-label">Tue</label>
+                                </div>
+                                <div class="form-check form-check-inline" style="width:58px;">
+                                    <input class="form-check-input" type="checkbox" name="Wed">
+                                    <label class="form-check-label">Wed</label>
+                                </div>
+                                <div class="form-check form-check-inline" style="width:58px;">
+                                    <input class="form-check-input" type="checkbox" name="Thu">
+                                    <label class="form-check-label">Thu</label>
+                                </div>
+                                <div class="form-check form-check-inline" style="width:58px;">
+                                    <input class="form-check-input" type="checkbox" name="Fri">
+                                    <label class="form-check-label">Fri</label>
+                                </div>
+                                <div class="form-check form-check-inline" style="width:58px;">
+                                    <input class="form-check-input" type="checkbox" name="Sat">
+                                    <label class="form-check-label">Sat</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Work Hours:</label>
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <input class="form-control" type="time" name="start_time">
+                                </div>
+                                <div class="col-sm-2">
+                                    <h3>Till</h3>
+                                </div>
+                                <div class="col-sm-5">
+                                    <input class="form-control" type="time" name="end_time">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Available Positions: </label>
+                            <textarea class="form-control" id="description" name="positions" rows="5" placeholder="One job position per line"></textarea>
+                        </div>
+
+                        <div style="text-align:center;">
+                            <input type="hidden" name="action" value="new_department">
+                            <button type="submit" class="btn btn-dark">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="accordion" id="accordionAttendance">
+    <div class="accordion-item">
+        <h2 class="accordion-header-for-btn" id="headingAttendance">
+            <button class="btn btn-link accordion-header-btn" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAttendance" aria-expanded="true" aria-controls="collapseAttendance">
+                Attendance Types
+            </button>
+            <button type="button" style=" margin:5px;" class="btn btn-outline-info" data-toggle="modal" data-target="#AttendanceType">New</button>
+        </h2>
+        <div id="collapseAttendance" class="accordion-collapse collapse show" aria-labelledby="headingAttendance" data-bs-parent="#accordionAttendance">
+            <div class="accordion-body">
+                {% if attendance_rules %}
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Icon</th>
+                            <th>Status</th>
+                            <th>Colour</th>
+                            <th>Actions</th>
+                        </tr>
+                        {% for row in attendance_rules %}
+                        <tr>
+                            <td>{{row.id}}</td>
+                            <td>{{row.name}}</td>
+                            <td>{{row.icon}}</td>
+                            <td>{{row.enabled}}</td>
+                            <td>
+                                <div style="height:20px; width:55px;background-color:{{row.color}};">
+                                    <p>{{row.color}}</p>
+                                </div>
+                            <td>
+                                <button class="btn btn-success">
+                                    On
+                                </button>
+                                <button class="btn btn-danger">
+                                    Off
+                                </button>
+                                <button class="btn btn-warning">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </thead>
+                </table>
+                {% else %}
+                <h2 style="text-align:center;">No Attendance Types</h2>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<!--        General Settings - Departments        -->
+<div class="accordion" id="accordionDepartments">
+    <div class="accordion-item">
+        <h2 class="accordion-header-for-btn" id="headingDepartments">
+            <button class="btn btn-link accordion-header-btn" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDepartments" aria-expanded="true" aria-controls="collapseDepartments">
+                Departments
+            </button>
+            <button type="button" style="z-index:2; margin:5px;" class="btn btn-outline-info" data-toggle="modal" data-target="#NewDepartment">New</button>
+        </h2>
+        <div id="collapseDepartments" class="accordion-collapse collapse show" aria-labelledby="headingDepartments" data-bs-parent="#accordionDepartments">
+            <div class="accordion-body">
+                {% if departments != []%}
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Working Days</th>
+                            <th>Working Hours</th>
+                        </tr>
+                        {% for row in departments %}
+                        <tr>
+                            <td>{{row.id}}</td>
+                            <td>{{row.name}}</td>
+                            <td>{{row.work_days}}</td>
+                            <td>{{row.work_time}}</td>
+                            <td>
+                                <button class="btn btn-outline-info">i</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </thead>
+                </table>
+                {% else %}
+                <h2 style="text-align:center;">No Departments</h2>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<!--        General Settings - App Settings-->
+<div class="accordion" id="accordionAppSettings">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingAppSettings">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAppSettings" aria-expanded="true" aria-controls="collapseAppSettings">
+                App Settings
+            </button>
+        </h2>
+        <div id="collapseAppSettings" class="accordion-collapse collapse show" aria-labelledby="headingAppSettings" data-bs-parent="#accordionAppSettings">
+            <div class="accordion-body">
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Variable</th>
+                            <th>Name</th>
+                            <th>Value</th>
+                        </tr>
+                        {% for row in app_settings %}
+                        <tr>
+                            <td>{{row.id}}</td>
+                            <td>{{row.var}}</td>
+                            <td>{{row.name}}</td>
+                            <td>{{row.value}}</td>
+                        </tr>
+                        {% endfor %}
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,308 @@
+{% extends "admin_panel_base.html" %}
+{% block admin_page_base %}
+
+<style type="text/css">
+    .pi{
+        margin-bottom: 0px;
+        margin-top: 10px;
+    }
+</style>
+
+<form method="POST" id="employee_details">
+    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+    <div class="accordion">
+        <div class="accordion-item">
+            <div class="accordion-body" style="border-bottom-style:solid; border-bottom-color:lightgrey; border-bottom-width:1px; background-color:aliceblue;">
+                <div style="display:flex; align-items:baseline; justify-content: space-between; margin: 0px 10px;">
+                    <h5>Employee Profile - {{profile.name}} {% if registered %}✔️{% endif %}</h5>
+                    {% if action == 'view' %}
+                    <button class="btn btn-info" type="button" onclick="viewEmployeeProfile({{profile.id}}, 'edit')">Edit Details</button>
+                    {% elif action == 'edit' %}
+                    <button class="btn btn-warning" type="button" onclick="viewEmployeeProfile({{profile.id}}, 'view')">Cancel</button>
+                    <button class="btn btn-success" type="submit">Save Changes</button>
+                    <input hidden name="action" value="edit_employee_details">
+                    {% endif %}
+                </div>
+            </div>
+    <!--                <hr style="margin:0px;">-->
+            <div class="accordion-body">
+                <div style="display:flex; align-items:center;">
+                    <img src="/static/uploads/employee_profile_pic/{{profile.id}}.jpg" style="object-fit:cover; width:280px; height:280px; border-radius:150px; padding:40px;">
+                    <div class="container">
+                        <div class="row">
+                            <div class="mb-3">
+                                <h5>Attendance Rate</h5>
+                                <div class="progress" style="height: 40px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width:{{attendance_rate}}%; font-size:20px;" aria-valuenow="{{attendance_rate}}" aria-valuemin="0" aria-valuemax="100">{{attendance_rate}}%</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <h5>Task Completion Rate</h5>
+                                <div class="progress" style="height: 40px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width:{{task_rate}}%; font-size:20px;" aria-valuenow="{{task_rate}}" aria-valuemin="0" aria-valuemax="100">{{task_rate}}%</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <h5>Employee Rating</h5>
+                                <div class="progress" style="height: 40px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width:{{attendance_rate}}%; font-size:20px;" aria-valuenow="{{attendance_rate}}" aria-valuemin="0" aria-valuemax="100">{{attendance_rate}}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <h3>User Account</h3>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <p class="pi">Username</p>
+                            {% if registered.username %}
+                            <h5>{{registered.username}} ✔️</h5>
+                            {% else %}
+                            <h5>Not Registered ❌</h5>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <p class="pi">Email Verified</p>
+                            {% if registered.email_verified %}
+                            <h5>{{registered.email_verified}}</h5>
+                            {% else %}
+                            <h5>Not Verified ❌</h5>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <p class="pi">Last Login</p>
+                            {% if registered.last_login %}
+                            <input class="form-control" type="datetime-local" value="{{registered.last_login}}" readonly>
+                            {% else %}
+                            <h5>Not Logged In Yet ❌</h5>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <p class="pi">Account Status</p>
+                            {% if registered.username %}
+                            <h5>Registered  ✔</h5>
+                            {% else %}
+                            <h5>Not Registered ❌</h5>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <h3>Basic Information</h3>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="pi">Full Name</p>
+                        {% if action == 'view' %}
+                        <h5>{{profile.name}}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="text" name="name" value="{{profile.name}}" required>
+                        {% endif %}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Email</p>
+                        {% if action == 'view' %}
+                        <h5>{{profile.email}}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="email" name="email" value="{{profile.email}}" required>
+                        {% endif%}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Phone Number</p>
+                        {% if action == 'view' %}
+                        <h5>{{profile.contact}}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="tel" name="contact" value="{{profile.contact}}" required>
+                        {% endif%}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Gender</p>
+                        {% if action == 'view' %}
+                        <h5>{{profile.gender}}</h5>
+                        {% elif action == 'edit' %}
+                        <select class="form-control" name="gender" required>
+                            <option selected value="{{profile.gender}}">{{profile.gender}}</option>
+                            {% for i in gender_options %}
+                            <option value="{{i}}">{{i}}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif%}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="pi">Date of Birth</p>
+                        {% if action == 'view' %}
+                        <h5>{{profile.date_of_birth}}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="date" name="date_of_birth" value="{{profile.date_of_birth}}" required>
+                        {% endif%}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Age</p>
+                        {% if action == 'view' %}
+                        <h5>{{profile.age}}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="number" disabled value="{{profile.age}}">
+                        {% endif%}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Marital Status</p>
+                        {% if action == 'view' %}
+                        <h5>{{profile.marital_status}}</h5>
+                        {% elif action == 'edit' %}
+                        <select class="form-control" name="marital_status" required>
+                            <option selected value="{{profile.marital_status}}">{{profile.marital_status}}</option>
+                            {% for i in marital_status_options %}
+                            <option value="{{i}}">{{i}}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif%}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Address</p>
+                        {% if action == 'view' %}
+                        <h6>{{profile.address}}</h6>
+                        {% elif action == 'edit' %}
+                        <textarea class="form-control" name="address" rows="3" required>{{profile.address}}</textarea>
+                        {% endif%}
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <h3>Employee Information</h3>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="pi">Employee ID</p>
+                        {% if action == 'view' %}
+                        <h5>{{profile.id}}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="number" value="{{profile.id}}" disabled>
+                        <input type="number" name="id" value="{{profile.id}}" hidden>
+                        {% endif %}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Date of Joining</p>
+                        {% if action == 'view' %}
+                        <h5>{{profile.date_recruited}}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="date" name="date_recruited" value="{{profile.date_recruited}}" required>
+                        {% endif%}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Department</p>
+                        {% if action == 'view' %}
+                        <h6>{{profile.departments.name}}</h6>
+                        {% elif action == 'edit' %}
+                        <select class="form-control" name="department" required onchange="loadPositions(value);">
+                            <option selected value="{{profile.departments.id}}">{{profile.departments.name}}</option>
+                            {% for row in departments %}
+                            <option value="{{row.id}}">{{row.name}}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif%}
+                    </div>
+                    <div class="col">
+                        {% if action == 'view' %}
+                        <p class="pi">Job Position</p>
+                        <h5>{{profile.jobposition.name}}</h5>
+                        {% elif action == 'edit' %}
+                        <div id="job_position">
+                            <p class="pi">Job Position</p>
+                            <select class="form-control" name="job_position" required>
+                                <option selected value="{{profile.jobposition.id}}">{{profile.jobposition.name}}</option>
+                                {% for row in job_positions %}
+                                <option value="{{row.id}}">{{row.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif%}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="pi">Reporting Supervisor</p>
+                        {% if action == 'view' %}
+                            {% if profile.supervisor.name %}
+                            <button class="btn btn-link" type="button" onclick="redirectProfile({{profile.supervisor.id}})" style="padding:0px;">
+                                <h5>{{profile.supervisor.name}}</h5>
+                            </button>
+                            {% else %}
+                            <h5>--</h5>
+                            {% endif %}
+                        {% elif action == 'edit' %}
+                        <div class="mb-3">
+                            <input class="form-control" type="text" name="supervisor_name" id="supervisor_name" oninput="searchSupervisor(value);" value="{{profile.supervisor.name}}">
+                            <input type="text" name="supervisor" id="supervisor" hidden value="{{profile.supervisor_id}}">
+                        </div>
+                        <div id="found_supervisor">
+                            {{supervisors}}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Supervisees</p>
+                        {% if supervisees %}
+                        <div class="form-control">
+                            {% for row in supervisees %}
+                            <button class="btn btn-link" type="button" onclick="redirectProfile({{row.id}})" style="padding:0px;">{{row.name}}</button>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <h5>--</h5>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <h3>Payroll Details</h3>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="pi">Base Salary</p>
+                        {% if action == 'view' %}
+                        <h5>{{payroll.base_salary}}/{% if payroll.base_salary == 'Full Time' %}Month{% else %}Hour{% endif %}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="number" name="base_salary" value="{{payroll.base_salary}}" required>
+                        {% endif%}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Allowance</p>
+                        {% if action == 'view' %}
+                        <h5>{{payroll.allowance}}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="number" name="allowance" value="{{payroll.allowance}}" required>
+                        {% endif %}
+                    </div>
+                    <div class="col">
+                        <p class="pi">Bonus</p>
+                        {% if action == 'view' %}
+                        <h5>{{payroll.allowance}}</h5>
+                        {% elif action == 'edit' %}
+                        <input class="form-control" type="number" name="bonus" value="{{payroll.bonus}}" required>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

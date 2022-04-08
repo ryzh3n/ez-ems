@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner" style="border-radius:20px;">
+        <div class="carousel-item active" style="display:flex; justify-content:center; max-width:1200px; max-height:300px;">
+            <img src="/static/banners/3.jpg" class="img-responsive" alt="" >
+        </div>
+        <div class="carousel-item">
+            <img src="..." class="d-block w-100" alt="">
+        </div>
+    </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<br>
+
+<div class="row">
+
+    <div class="col" style="max-width:800px;">
+
+        <div class="accordion" id="accordionProfile">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingProfile">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProfile" aria-expanded="true" aria-controls="collapseProfile">
+                        My Profile
+                    </button>
+                </h2>
+                <div id="collapseProfile" class="accordion-collapse collapse show" aria-labelledby="headingProfile" data-bs-parent="#accordionProfile">
+                    <div class="accordion-body">
+                        <div style="display:flex; align-items:center;">
+                            <img src="/static/uploads/employee_profile_pic/{{profile.id}}.jpg" style="object-fit:cover; width:200px; height:200px; border-radius:150px; padding:20px;">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col mb-3">
+                                    <label style="margin:0px;">Name</label>
+                                        <h5>{{profile.name}}</h5>
+                                    </div>
+                                    <div class="col mb-3">
+                                        <label style="margin:0px;">Joined Since</label>
+                                        <h5>{{profile.date_recruited}}</h5>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="margin:0px;">Job Position</label>
+                                    <h5>{{profile.jobposition.name}} of {{profile.departments.name}}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <br>
+
+    <div class="accordion" id="accordionAttendance">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAttendance">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAttendance" aria-expanded="true" aria-controls="collapseAttendance">
+                    Attendance
+                </button>
+            </h2>
+            <div id="collapseAttendance" class="accordion-collapse collapse show" aria-labelledby="headingAttendance" data-bs-parent="#accordionAttendance">
+                <div class="accordion-body">
+                    <div class="mb-3">
+                        <h5>Total Attendance Rate</h5>
+                        <div class="progress" style="height:20px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width:{{total_attendance_rate}}%; font-size:20px;" aria-valuenow="{{total_attendance_rate}}" aria-valuemin="0" aria-valuemax="100">{{total_attendance_rate}}%</div>
+                        </div>
+                        </div>
+                    <div class="mb-3">
+                        <h5>Current Month Attendance Rate</h5>
+                        <div class="progress" style="height:20px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width:{{month_attendance_rate}}%; font-size:20px;" aria-valuenow="{{month_attendance_rate}}" aria-valuemin="0" aria-valuemax="100">{{month_attendance_rate}}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div id="view_notification_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div id="notification_content" class="modal-content">
+            1
+        </div>
+    </div>
+    </div>
+    <div class="accordion" id="accordionNotification">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingNotification">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNotification" aria-expanded="true" aria-controls="collapseNotification">
+                    Recent Notifications
+                </button>
+            </h2>
+            <div id="collapseNotification" class="accordion-collapse collapse show" aria-labelledby="headingNotification" data-bs-parent="#accordionNotification">
+                <div class="accordion-body">
+                    <table class="table table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <td>Sender</td>
+                                <td>Date</td>
+                                <td>Time</td>
+                                <td>Title</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in notifications %}
+                            <tr class="row-item" onclick="readNotification('{{row.id}}')" data-toggle="modal" data-target="#view_notification_modal">
+                                <td>{{row.sender}}</td>
+                                <td>{{row.date}}</td>
+                                <td>{{row.time}}</td>
+                                <td>{{row.title}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  </div>
+
+  <div class="col" style="max-width:400px;">
+
+      <div class="accordion" id="accordionCalendar">
+          <div class="accordion-item">
+              <h2 class="accordion-header" id="headingCalendar">
+                  <button class="accordion-button">
+                      Calendar
+                  </button>
+              </h2>
+              <div class="accordion-body">
+                  <h2>test</h2>
+                  <h2>test</h2>
+                  <h2>test</h2>
+                  <h2>test</h2>
+                  <h2>test</h2>
+                  <h2>test</h2>
+                  <h2>test</h2>
+                  <h2>test</h2>
+                  <h2>test</h2>
+              </div>
+          </div>
+      </div>
+
+  </div>
+</div>
+
+{% endblock %}

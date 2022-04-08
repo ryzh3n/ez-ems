@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 align="center">Register As Employee</h3>
+
+<form method="POST" style="width: 700px; margin: auto">
+    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+    <div class="mb-3">
+        <label for="email">Email</label>
+        <input
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            placeholder="Enter Referral Email">
+    </div>
+    <div class="mb-3">
+        <label for="username">Username</label>
+        <input
+            type="text"
+            class="form-control"
+            id="username"
+            name="username"
+            placeholder="Enter Username, must be at least 6 characters">
+    </div>
+    <div class="mb-3">
+        <label for="password1">Password - must include 1 Number, Uppercase, and Lowercase Letter (at least 7 characters long)</label>
+        <input
+            type="password"
+            class="form-control"
+            id="password1"
+            name="password1"
+            placeholder="Enter Password ">
+    </div>
+    <div class="mb-3">
+        <label for="password2">Re-Type Password</label>
+        <input
+            type="password"
+            class="form-control"
+            id="password2"
+            name="password2"
+            placeholder="Retype Password">
+    </div>
+    <div style="text-align:center;">
+        <button style="text-align:center;" type="submit" class="btn btn-dark">Register</button>
+    </div>
+</form>
+{% endblock %}
