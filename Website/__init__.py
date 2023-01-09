@@ -32,11 +32,18 @@ def create_app(conf):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://' + conf['mysql_user'] + ':' + conf['mysql_password'] + '@' + conf[
         'mysql_host'] + ':' + conf['mysql_port'] + '/' + conf['mysql_db_name']  # Assign DB URI from the config
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SERVER_NAME'] = f"{conf['host']}:{conf['port']}"
     db.init_app(app)  # Initialize DB in the app
     api = Api(app)  # Initialize API in the app
     limiter = Limiter(app, key_func=get_remote_address)
     csrf = CSRFProtect(app)
     csrf.init_app(app)
+    # app.config.update(
+    #     SESSION_COOKIE_SECURE=True,
+    #     SESSION_COOKIE_HTTPONLY=True,
+    #     SESSION_COOKIE_SAMESITE='Lax',
+    #     PERMANENT_SESSION_LIFETIME=600
+    # )
 
     from .api import EZApi
     api.add_resource(EZApi, '/ezapi')
@@ -170,12 +177,17 @@ def create_app(conf):
                 yesterday = (today - datetime.timedelta(days=1)).strftime("%d-%m-%Y")
                 for e in employees:
                     attendance = Attendance_List.query.filter(
-                        Attendance_List.employee_username == e.username,
+                        Attendance_List.employee_id == e.id,
                         Attendance_List.date == yesterday
                     ).first()
                     if attendance:
-                        attendance.status = "Not Clocked Out"
-                        db.session.commit()
+                        if int(attendance.checkin_time[:2]) < 9:
+                            if int(attendance.checkout_time[:2]) >= 6:
+                                attendance.status = 'Present'
+                            else:
+                                attendance.status = 'Early Leave'
+                        else:
+                            attendance.status = 'Late'
                     else:
                         new_att = Attendance_List(
                             employee_username=e.username,
@@ -186,19 +198,12 @@ def create_app(conf):
                             status='Absent'
                         )
                         db.session.add(new_att)
-                        db.session.commit()
+                    db.session.commit()
                 print("Updated All Attendances")
 
         scheduler = BackgroundScheduler()  # Create a new scheduler
-        from .models import App_Settings
-        att_check_time = App_Settings.query.filter_by(
-            var='att_check_time'
-        ).first()
-        att_check_time = att_check_time.value  # Retrieve Attendance Check Time from DB
-        hour = int(att_check_time[:2])  # Extract the 'hour' from att_check_time
-        minute = int(att_check_time[3:5])  # Extract the 'minute' from att_check_time
-        scheduler.add_job(check_attendance, 'cron', day_of_week='mon-sun', hour=hour, minute=minute)  # Add new job to scheduler
-        print(f"Checking Attendances at {att_check_time} Everyday, details shown in the following:")
+        scheduler.add_job(check_attendance, 'cron', day_of_week='mon-sun', hour='0', minute='0')  # Add new job to scheduler
+        print(f"Checking Attendances at '00:00' Everyday, details shown in the following:")
         scheduler.print_jobs()  # Prints out the details of the scheduler's job
         scheduler.start()  # Make the scheduler work
 

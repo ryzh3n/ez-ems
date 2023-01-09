@@ -176,7 +176,13 @@
                                         </button>
                                     </td>
                                     <td>{% if task.date_time_ended %}{{task.date_time_ended}}{% else %}--{% endif %}</td>
-                                    <td>{% if task.date_time_ended %}✔️{% else %}❌{% endif %}</td>
+                                    <td>
+                                        {% if task.date_time_ended %}
+                                        ✔️
+                                        {% elif user.employee_id == '{{task.task.id}}' %}
+                                        <button class="btn btn-success" onclick="submit_task({{task.id}})">Submit</button>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -188,6 +194,7 @@
         </div>
     </div>
     <div class="modal-footer">
+        <button type="button" class="btn btn-info" data-dismiss="modal">Complete</button>
         <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
     </div>
 </div>
@@ -229,6 +236,58 @@
             <label class="col-sm-2 col-form-label">Description:</label>
             <textarea class="form-control" rows="5" readonly>{{data.description}}</textarea>
         </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+    </div>
+</div>
+{% elif category == 'read_ticket' %}
+<div id="ticket_content" class="modal-content">
+    <div class="modal-header">
+        <h4 class="modal-title">Viewing Ticket #{{ticket.id}}</h4>
+    </div>
+    <div class="modal-body">
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">Tittle:</label>
+            <div class="col-sm-10">
+                <input class="form-control" type="text" value="{{ticket.title}}" readonly>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">Created By:</label>
+            <div class="col-sm-10">
+                <div class="form-control">
+                    <button class="btn btn-info" onclick="redirectProfile('{{employee.id}}', 'view')">{{employee.name}}</button>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">Time Created:</label>
+            <div class="col-sm-10">
+                <input class="form-control" type="text" value="{{ticket.time_created}}" readonly>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">Date Created:</label>
+            <div class="col-sm-10">
+                <input class="form-control" type="text" value="{{ticket.date_created}}" readonly>
+            </div>
+        </div>
+        <div id="chatbox" style="overflow-x: hidden; overflow-y: scroll; max-height:300px;" onload="scrollbtm()">
+            {% for row in chats %}
+                <div class="alert alert-info">
+                    <p>{{row.message}}</p>
+                </div>
+            {% endfor %}
+        </div>
+        <div style="display:flex">
+            <input hidden type="text" name="ticket_id" value="{{ticket.id}}">
+            <input class="form-control" id="msg" name="msg" placeholder="Message...">
+            <button class="btn btn-info" onclick="sendChat()">Send</button>
+        </div>
+        <script type="text/javascript">
+            chatbox.scrollTop = chatbox.scrollHeight;
+        </script>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>

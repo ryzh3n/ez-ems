@@ -7,7 +7,6 @@ from flask_login import login_user, login_required, logout_user, current_user
 auth = Blueprint('auth', __name__)
 
 
-
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     data = request.form
@@ -20,7 +19,8 @@ def login():
         if user:
             user_login_attempts = user.login_attempts
             if user_login_attempts > 10:
-                flash('You have exceeded 10 failed login attempts, therefore your account has been disabled.', category='error')
+                flash('You have exceeded 10 failed login attempts, therefore your account has been disabled.',
+                      category='error')
             elif check_password_hash(user.password, password):
                 user.login_attempts = 0
                 import datetime
@@ -52,7 +52,7 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
-@auth.route('/sign_up', methods = ['GET', 'POST'])
+@auth.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
     data = request.form
     print(data)
@@ -83,11 +83,11 @@ def sign_up():
             flash("Passwords don't match.", category='error')
         else:
             new_user = UserAccounts(username=username,
-                                   employee_id=useremail.id,
-                                   email=email,
-                                   role='user',
-                                   password=generate_password_hash(password1, method='SHA256'),
-                                   login_attempts=0)
+                                    employee_id=useremail.id,
+                                    email=email,
+                                    role='user',
+                                    password=generate_password_hash(password1, method='SHA256'),
+                                    login_attempts=0)
             db.session.add(new_user)
             db.session.commit()
             flash('Registered Successfully!', category='success')

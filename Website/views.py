@@ -1,20 +1,16 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, make_response
 from flask_login import login_required, current_user
 from . import db
-from sqlalchemy import or_, and_, not_
-import os
-from werkzeug.utils import secure_filename
+from sqlalchemy import or_, and_
 
 from .models import Attendance_Rules, App_Settings, Departments, Employee_Profiles, Departments_JobPositions, \
     Attendance_List, Notifications, UserAccounts, Employee_Tasks, Employee_Tasks_Assignments, Payroll_Payslips, \
-    Employee_Payrolls
+    Employee_Payrolls, Employee_Tickets, Employee_Tickets_Chats
 from .auth import check_password_hash, generate_password_hash
 import datetime
+from .admin import record_log
 
 views = Blueprint('views', __name__)
-
-UPLOAD_FOLDER = r'D:\PythonProjects\FYP EZ-EMS\Website\static\uploads\employee_profile_pic'
-ALLOWED_EXTENSIONS = {'txt', 'png', 'jpg', 'jpeg', 'gif', 'pdf'}
 
 
 # def rearrange_date(input_date):
@@ -23,11 +19,6 @@ ALLOWED_EXTENSIONS = {'txt', 'png', 'jpg', 'jpeg', 'gif', 'pdf'}
 #     year = input_date[:4]
 #     output_date = f'{day}-{month}-{year}'
 #     return output_date
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def get_att_rate(employee, *month):  # find the total/monthly attendance rate of the employee
@@ -78,6 +69,7 @@ def get_task_rate(employee):
 @views.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
+    record_log(f'{current_user.username} viewed /')
     if current_user.role == 'admin':
         return redirect(url_for('admin.general_settings'))
     employee_profile = Employee_Profiles.query.filter(
@@ -86,19 +78,32 @@ def home():
     notifications = Notifications.query.filter(
         Notifications.receiver == employee_profile.name
     ).limit(5).all()
-    return render_template("home.html",
-                           user=current_user,
-                           username=current_user.username,
-                           profile=employee_profile,
-                           total_attendance_rate=get_att_rate(current_user),
-                           month_attendance_rate=get_att_rate(current_user, datetime.datetime.now().strftime('%m-%Y')),
-                           notifications=reversed(notifications)
-                           )
+    if notifications:
+        notifications = reversed(notifications)
+    payslips = Payroll_Payslips.query.filter(
+        Payroll_Payslips.payee == employee_profile.id
+    ).limit(5).all()
+    if payslips:
+        payslips = reversed(payslips)
+    response = make_response(render_template("home.html",
+                                             user=current_user,
+                                             username=current_user.username,
+                                             profile=employee_profile,
+                                             total_attendance_rate=get_att_rate(current_user),
+                                             month_attendance_rate=get_att_rate(current_user,
+                                                                                datetime.datetime.now().strftime(
+                                                                                    '%m-%Y')),
+                                             notifications=notifications,
+                                             payslips=payslips
+                                             ))
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    return response
 
 
 @views.route('/attendance', methods=['GET', 'POST'])
 @login_required
 def attendance():
+    record_log(f'{current_user.username} viewed /attendance')
     if current_user.role == 'admin':
         return redirect(url_for('admin.general_settings'))
     from .models import Attendance_List, Attendance_Rules
@@ -198,23 +203,154 @@ def attendance():
             Attendance_List.date.like(current_finding_month),
             Attendance_List.status == att_type
         ).count()
-        total_attendance_varieties[att_type] = find  \
+        total_attendance_varieties[att_type] = find \
             # Insert the value of current looping attendance type with the number of records corresponding to it
     return render_template('attendance.html',
                            user=current_user,
-                           priv=current_user.role,
-                           username=current_user.username,
                            attendance=reversed(employee_att),
                            types=types,
                            total_attendance_varieties=total_attendance_varieties,
                            current_month=current_month_main,
                            available_months=available_months,
-                           percentage=get_att_rate(current_user.username, current_finding_month[1:]))
+                           percentage=get_att_rate(current_user, current_finding_month[1:]))
 
+
+from .admin import search_query
+
+
+@views.route('/notifications', methods=['GET'])
+@login_required
+def notifications():
+    record_log(f'{current_user.username} viewed /notifications')
+    if current_user.role == 'admin':
+        return redirect(url_for('admin.general_settings'))
+    employee_name = Employee_Profiles.query.filter(
+        Employee_Profiles.id == current_user.employee_id
+    ).first().name
+    notifications = Notifications.query.filter(
+        Notifications.receiver == employee_name
+    ).all()
+    if notifications:
+        notifications = reversed(notifications)
+    search = ''
+    if request.method == 'GET':
+        search = request.args.get('search')
+        if search:
+            filters = search_query(Notifications,
+                                   search,
+                                   search_columns=['receiver',
+                                                   'date',
+                                                   'day',
+                                                   'time',
+                                                   'title'],
+                                   join_tables={UserAccounts: 'username'})
+            notifications = Notifications.query.filter(
+                or_(
+                    *filters
+                )
+            ).all()
+        else:
+            search = ''
+    return render_template('notifications.html',
+                           user=current_user,
+                           notifications=notifications,
+                           search=search)
+
+
+@views.route('/tasks', methods=['GET', 'POST'])
+@login_required
+def tasks():
+    record_log(f'{current_user.username} viewed /tasks')
+    if current_user.role == 'admin':
+        return redirect(url_for('admin.general_settings'))
+    tasks_assignments = Employee_Tasks_Assignments.query.filter(
+        Employee_Tasks_Assignments.user == current_user.employee_id
+    ).all()
+    tasks = []
+    for task in tasks_assignments:
+        main_task = Employee_Tasks.query.filter(
+            Employee_Tasks.id == task.task_id
+        ).first()
+        tasks.append(main_task)
+    if tasks:
+        tasks = reversed(tasks)
+    return render_template('tasks.html',
+                           user=current_user,
+                           tasks=tasks)
+
+
+@views.route('/support', methods=['GET', 'POST'])
+@login_required
+def support():
+    record_log(f'{current_user.username} viewed /support')
+    if current_user.role == 'admin':
+        return redirect(url_for('admin.general_settings'))
+    tickets = Employee_Tickets.query.filter(
+        Employee_Tickets.created_by == current_user.username
+    ).all()
+    if tickets:
+        tickets = reversed(tickets)
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'new_ticket':
+            title = request.form.get('title')
+            message = request.form.get('message')
+            import datetime
+            now = datetime.datetime.now()
+            date_created = now.strftime("%d-%m-%Y")
+            time_created = now.strftime("%I:%M:%S %p")
+            new_ticket = Employee_Tickets(
+                created_by=current_user.username,
+                title=title,
+                status="Waiting for Admin's reply",
+                time_created=time_created,
+                date_created=date_created
+            )
+            db.session.add(new_ticket)
+            db.session.commit()
+            new_chat = Employee_Tickets_Chats(
+                ticket_id=new_ticket.id,
+                message=message,
+                time=time_created,
+                date=date_created
+            )
+            db.session.add(new_chat)
+            db.session.commit()
+            record_log(f'{current_user.username} created a new support ticket #{new_ticket.id}')
+            flash('Successfully created a new support ticket.', category='success')
+            return redirect(url_for('views.support'))
+        # elif action == 'reply':
+
+    return render_template('support.html',
+                           user=current_user,
+                           tickets=tickets)
+
+
+@views.route('/profile', methods=['GET', 'POST'])
+def profile():
+    profile = Employee_Profiles.query.filter(
+        Employee_Profiles.id == current_user.employee_id
+    ).first()
+    supervisees = Employee_Profiles.query.filter(
+        Employee_Profiles.supervisor_id == current_user.employee_id
+    ).all()  # Get supervisor id based on the id
+    payroll = Employee_Payrolls.query.filter(
+        Employee_Payrolls.employee_id == current_user.employee_id
+    ).first()  # Get payroll data based on the id
+    return render_template('profile.html',
+                           user=current_user,
+                           profile=profile,
+                           registered=current_user,
+                           supervisees=supervisees,
+                           payroll=payroll,
+                           attendance_rate=get_att_rate(current_user),
+                           task_rate=get_task_rate(current_user)
+    )
 
 @views.route('/account_settings', methods=['GET', 'POST'])
 @login_required
 def account_settings():
+    record_log(f'{current_user.username} viewed /account_settings')
     username = current_user.username
     email = current_user.email
     password = current_user.password
@@ -228,6 +364,7 @@ def account_settings():
 @views.route('/change_password', methods=['GET', 'POST'])
 @login_required
 def change_password():
+    record_log(f'{current_user.username} viewed /change_password')
     username = current_user.username
     if request.method == 'POST':
         current_password = request.form.get('current_password')
@@ -238,12 +375,19 @@ def change_password():
             flash('Password Incorrect', category='error')
         elif len(new_password1) < 7:
             flash('Password must be at least 7 characters.', category='error')
+        elif not any(char.isnumeric() for char in new_password1):
+            flash('Password must contain at least 1 digit', category='error')
+        elif not any(char.isupper() for char in new_password1):
+            flash('Password must contain at least 1 Upper Case Character', category='error')
+        elif not any(char.islower() for char in new_password1):
+            flash('Password must contain at least 1 Lower Case Character', category='error')
         elif new_password1 != new_password2:
-            flash("New passwords don't match.", category='error')
+            flash("Passwords don't match.", category='error')
         else:
-            current_user.password = generate_password_hash(new_password1, method='SHA256')  \
+            current_user.password = generate_password_hash(new_password1, method='SHA256') \
                 # After validation, generate a new hash value by using SHA-256
             db.session.commit()  # Make changes to the DB
+            record_log(f'{current_user.username} changed password successfully')
             flash("Successfully changed password.", category='success')
             return redirect(url_for('views.account_settings'))
     return render_template('change_password.html', user=current_user, username=username)

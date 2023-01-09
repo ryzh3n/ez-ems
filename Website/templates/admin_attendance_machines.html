@@ -1,0 +1,78 @@
+{% extends "admin_panel_base.html" %}
+{% block admin_page_base %}
+<div id="new_machine_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">New Attendance Machine</h4>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="new_machine" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                    <div class="mb-3">
+                        <label class="form-label">Location:</label>
+                        <input class="form-control" name="location" id="location">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Name:</label>
+                        <input class="form-control" name="name" id="name">
+                    </div>
+                    <h6>The Authentication Key of the new registered attendance machine will be generated automatically.</h6>
+                    <div class="container" align="center">
+                        <button class="btn btn-info" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="accordion">
+    <div class="accordion-item">
+        <div class="accordion-body" style="border-bottom-style:solid; border-bottom-color:lightgrey; border-bottom-width:1px; background-color:aliceblue;">
+            <div style="display:flex; align-items:baseline; justify-content: space-between; margin: 0px 10px;">
+                <h5>Attendance Machines</h5>
+                <div style="display:flex; align-items:baseline; justify-content: space-between;">
+                    <button style="margin-right: 10px;" type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#new_machine_modal">New Machine</button>
+                </div>
+            </div>
+        </div>
+<!--                <hr style="margin:0px;">-->
+        <div class="accordion-body" style="display:flex; flex-wrap:wrap;">
+            {% if machines %}
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Installation Date</th>
+                        <th scope="col">Installation Time</th>
+                        <th scope="col">Auth Key</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in machines %}
+                    <tr>
+                        <td scope="row">{{row.id}}</td>
+                        <td>{{row.name}}</td>
+                        <td>{{row.location}}</td>
+                        <td>{{row.installation_date}}</td>
+                        <td>{{row.installation_time}}</td>
+                        <td>{{row.auth_key}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <h2>No Attendance Machines</h2>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

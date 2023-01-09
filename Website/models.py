@@ -32,6 +32,7 @@ class Admin_SystemLog(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     date = db.Column(db.String(10))
     time = db.Column(db.String(12))
+    ip = db.Column(db.String(50))
     action = db.Column(db.String(1000))
 
 
@@ -110,20 +111,19 @@ class Employee_Tickets(db.Model):
     __tablename__ = 'employee_tickets'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created_by = db.Column(db.String(20), db.ForeignKey('useraccounts.username'))
-    refer_item = db.Column(db.String(10))
     title = db.Column(db.String(200))
     status = db.Column(db.String(30))
     time_created = db.Column(db.String(12))
-    date_created = db.Column(db.String(10))
+    date_created = db.Column(db.String(12))
 
 
 class Employee_Tickets_Chats(db.Model):
     __tablename__ = 'employee_tickets_chats'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True )
     ticket_id = db.Column(db.Integer, db.ForeignKey('employee_tickets.id'))
     message = db.Column(db.String(1000))
     time = db.Column(db.String(12))
-    date = db.Column(db.String(10))
+    date = db.Column(db.String(12))
 
 
 class Attendance_Rules(db.Model):
@@ -153,6 +153,7 @@ class Attendance_Machines(db.Model):
     location = db.Column(db.String(100))
     installation_date = db.Column(db.String(10))
     installation_time = db.Column(db.String(15))
+    auth_key = db.Column(db.String(1000))
 
 
 class Notifications(db.Model):

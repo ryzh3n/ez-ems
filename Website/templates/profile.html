@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="accordion-body">
+    <div style="display:flex; align-items:center;">
+        <img src="/static/uploads/employee_profile_pic/{{profile.id}}.jpg" style="object-fit:cover; width:280px; height:280px; border-radius:150px; padding:40px;">
+        <div class="container">
+            <div class="row">
+                <div class="mb-3">
+                    <h5>Attendance Rate</h5>
+                    <div class="progress" style="height: 40px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width:{{attendance_rate}}%; font-size:20px;" aria-valuenow="{{attendance_rate}}" aria-valuemin="0" aria-valuemax="100">{{attendance_rate}}%</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h5>Task Completion Rate</h5>
+                    <div class="progress" style="height: 40px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width:{{task_rate}}%; font-size:20px;" aria-valuenow="{{task_rate}}" aria-valuemin="0" aria-valuemax="100">{{task_rate}}%</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h5>Employee Rating</h5>
+                    <div class="progress" style="height: 40px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width:{{attendance_rate}}%; font-size:20px;" aria-valuenow="{{attendance_rate}}" aria-valuemin="0" aria-valuemax="100">{{attendance_rate}}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <h3>User Account</h3>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="mb-3">
+                <p class="pi">Username</p>
+                {% if registered.username %}
+                <h5>{{registered.username}} ✔️</h5>
+                {% else %}
+                <h5>Not Registered ❌</h5>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <p class="pi">Email Verified</p>
+                {% if registered.email_verified %}
+                <h5>{{registered.email_verified}}</h5>
+                {% else %}
+                <h5>Not Verified ❌</h5>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <p class="pi">Last Login</p>
+                {% if registered.last_login %}
+                <input class="form-control" type="datetime-local" value="{{registered.last_login}}" readonly>
+                {% else %}
+                <h5>Not Logged In Yet ❌</h5>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <p class="pi">Account Status</p>
+                {% if registered.username %}
+                <h5>Registered  ✔</h5>
+                {% else %}
+                <h5>Not Registered ❌</h5>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <h3>Basic Information</h3>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p class="pi">Full Name</p>
+            <h5>{{profile.name}}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Email</p>
+            <h5>{{profile.email}}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Phone Number</p>
+            <h5>{{profile.contact}}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Gender</p>
+            <h5>{{profile.gender}}</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p class="pi">Date of Birth</p>
+            <h5>{{profile.date_of_birth}}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Age</p>
+            <h5>{{profile.age}}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Marital Status</p>
+            <h5>{{profile.marital_status}}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Address</p>
+            <h6>{{profile.address}}</h6>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <h3>Employee Information</h3>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p class="pi">Employee ID</p>
+            <h5>{{profile.id}}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Date of Joining</p>
+            <h5>{{profile.date_recruited}}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Department</p>
+            <h6>{{profile.departments.name}}</h6>
+        </div>
+        <div class="col">
+            <p class="pi">Job Position</p>
+            <h5>{{profile.jobposition.name}}</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p class="pi">Reporting Supervisor</p>
+            {% if profile.supervisor.name %}
+            <button class="btn btn-link" type="button" style="padding:0px;">
+                <h5>{{profile.supervisor.name}}</h5>
+            </button>
+            {% else %}
+            <h5>--</h5>
+            {% endif %}
+        </div>
+        <div class="col">
+            <p class="pi">Supervisees</p>
+            {% if supervisees %}
+            <div class="form-control">
+                {% for row in supervisees %}
+                <button class="btn btn-link" type="button" style="padding:0px;">{{row.name}}</button>
+                {% endfor %}
+            </div>
+            {% else %}
+            <h5>--</h5>
+            {% endif %}
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <h3>Payroll Details</h3>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p class="pi">Base Salary</p>
+            <h5>{{payroll.base_salary}}/{% if payroll.base_salary == 'Full Time' %}Month{% else %}Hour{% endif %}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Allowance</p>
+            <h5>{{payroll.allowance}}</h5>
+        </div>
+        <div class="col">
+            <p class="pi">Bonus</p>
+            <h5>{{payroll.allowance}}</h5>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

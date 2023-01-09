@@ -37,6 +37,7 @@ function searchSupervisor(value) {
     }
 }
 
+
 function searchReceivers(value) {
     if (value == ''){
         $(receivers).hide()
@@ -109,12 +110,12 @@ function readNotification(id){
 function redirectProfile(id){
     $('#view_notification_modal').modal('hide');
     $('.modal-backdrop').remove()
-    return viewEmployeeProfile(id)
+    return viewEmployeeProfile(id, 'view')
 }
 
 function readTask(id){
 	$.ajax({
-		url: "/ezapi?category=tasks&read=" + id,
+		url: "/ezapi?category=tasks&action=read&read=" + id,
 		type: "GET",
 		dataType: "json",
 		success: function(data){
@@ -149,6 +150,29 @@ function readPayslip(id){
 	});
 }
 
+function readTicket(id){
+    $.ajax({
+        url: "/ezapi?category=tickets&read=" + id,
+        type: "GET",
+        dataType: "json",
+        success: function(data){
+            $(ticket_content).replaceWith(data);
+        }
+    });
+}
+
+function sendChat(){
+    $.ajax({
+        url: "/ezapi?category=tickets",
+        type: "POST",
+        dataType: "json",
+        data: {
+            ticket_id: $('#ticket_id').val(),
+            msg: $('#msg').val()
+        }
+    });
+}
+
 function searchAttendance(){
     url = '/admin_panel/attendance_list?search=' + $('#search_value').val();
     window.location.href = url;
@@ -165,6 +189,12 @@ function searchTickets(){
 }
 
 function searchNotification(){
+    var page_name = 'notifications';
+    url = page_name + '?search=' + $('#search_value').val();
+    window.location.href = url;
+}
+
+function adminsearchNotification(){
     url = '/admin_panel/notification_center?search=' + $('#search_value').val();
     window.location.href = url;
 }
@@ -174,7 +204,18 @@ function searchTask(){
     window.location.href = url;
 }
 
+function searchLog(){
+    url = '/admin_panel/system_logging?search=' + $('#search_value').val();
+    window.location.href = url;
+}
+
 function viewEmployeeProfile(id, action){
     url = '/admin_panel/employee_profiles?id=' + id + '&action=' + action;
     window.location.href = url;
+}
+
+function changeSupervisor(id, name){
+    $('#found_supervisor').hide();
+    $('#supervisor_name').val(name);
+    $('#supervisor').val = id;
 }

@@ -1,5 +1,41 @@
-{% extends "admin_panel_base.html" %}
-{% block admin_page_base %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<div id="new_support_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">New Support Ticket</h4>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="new_notification" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                    <div class="mb-3">
+                        <label class="form-label">To:</label>
+                        <input class="form-control" value="Admin" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Title:</label>
+                        <input class="form-control" name="title" id="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message:</label>
+                        <textarea class="form-control" rows="5" name="message" id="message" required></textarea>
+                    </div>
+                    <input type="text" name="action" value="new_ticket" hidden>
+                    <div class="container" align="center">
+                        <button class="btn btn-info" type="submit">Send</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">Close Ticket</button>
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="view_support_modal" class="modal fade">
     <div class="modal-dialog">
         <div id="ticket_content" class="modal-content">
@@ -11,10 +47,13 @@
     <div class="accordion-item">
         <div class="accordion-body" style="border-bottom-style:solid; border-bottom-color:lightgrey; border-bottom-width:1px; background-color:aliceblue;">
             <div style="display:flex; align-items:baseline; justify-content: space-between; margin: 0px 10px;">
-                <h5>Employee Tickets</h5>
+                <h5>Support Tickets</h5>
                 <div style="display:flex; align-items:baseline; justify-content: space-between;">
+                    <button style="margin-right: 10px;" type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#new_support_modal">New Support Ticket</button>
                     <form method="POST">
                         <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+                        <input type="hidden" name="action" value="change_view">
+                        <input type="hidden" name="view" value="employee_profiles">
                         <div class="input-group" style="max-width:300px;">
                                 <input class="form-control" type="text" id="search_value" value="{{search_value}}">
                             <div class="input-group-append">
@@ -27,7 +66,7 @@
         </div>
 <!--                <hr style="margin:0px;">-->
         <div class="accordion-body" style="display:flex; flex-wrap:wrap;">
-            {% if employee_tickets %}
+            {% if tickets %}
             <table class="table table-hover">
                 <thead class="thead-dark">
                     <tr>
@@ -40,13 +79,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for row in employee_tickets %}
+                    {% for row in tickets %}
                     <tr class="row-item" onclick="readTicket('{{row.id}}')" data-toggle="modal" data-target="#view_support_modal">
                         <td scope="row">{{row.id}}</td>
                         <td>{{row.title}}</td>
                         <td>{{row.created_by}}</td>
-                        <td>{{row.date}}</td>
-                        <td>{{row.time}}</td>
+                        <td>{{row.date_created}}</td>
+                        <td>{{row.time_created}}</td>
                         <td>{{row.status}}</td>
                     </tr>
                     {% endfor %}
@@ -58,4 +97,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}

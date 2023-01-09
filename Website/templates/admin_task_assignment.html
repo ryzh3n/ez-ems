@@ -16,7 +16,7 @@
                                 <div id="appended_receivers">
                                     {{receivers}}
                                 </div>
-                                <input type="text" style="width:100%; border:none; outline:none;" oninput="searchSupervisee(value)" id="search_receiver">
+                                <input type="text" style="width:100%; border:none; outline:none;" oninput="searchReceivers(value)" id="search_receiver">
                                 <input type="text" hidden name="total_receivers" id="total_receivers" value="">
                                 <input type="text" hidden name="total_receivers_category" id="total_receivers_category" value="">
                             </div>
@@ -99,6 +99,7 @@
         </div>
 <!--                <hr style="margin:0px;">-->
         <div class="accordion-body" style="display:flex; flex-wrap:wrap;">
+            {% if employee_tasks %}
             <table class="table table-hover">
                 <thead class="thead-dark">
                     <tr>
@@ -125,6 +126,9 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% else %}
+            <h2>No Tasks</h2>
+            {% endif %}
         </div>
     </div>
 </div>

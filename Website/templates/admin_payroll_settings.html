@@ -107,8 +107,8 @@
                                         {{receivers}}
                                     </div>
                                     <input type="text" style="width:100%; border:none; outline:none;" oninput="searchReceivers(value)" id="search_receiver">
-                                    <input type="text" hidden name="total_receivers" id="total_receivers" value="">
-                                    <input type="text" hidden name="total_receivers_category" id="total_receivers_category" value="">
+                                    <input type="text" hidden name="total_receivers" id="total_receivers" value="" required>
+                                    <input type="text" hidden name="total_receivers_category" id="total_receivers_category" value="" required>
                                 </div>
                             </div>
                         </div>
@@ -125,12 +125,12 @@
                         <div class="mb-3 row">
                             <label class="col-sm-2 col-form-label">Amount:</label>
                             <div class="col-sm-10">
-                                <input class="form-control" type="number" id="amount" name="amount" placeholder="RM">
+                                <input class="form-control" type="number" id="amount" name="amount" placeholder="RM" required>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="col-sm-2 col-form-label">Description:</label>
-                            <textarea class="form-control" rows="5" name="description" id="description"></textarea>
+                            <textarea class="form-control" rows="5" name="description" id="description" required></textarea>
                         </div>
                         <input hidden name="section" value="payslip">
                         <div class="container" align="center">

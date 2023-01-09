@@ -7,7 +7,7 @@
     <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
     <div class="mb-3">
         <label for="email">Email</label>
-        <input
+        <input required
             type="email"
             class="form-control"
             id="email"
@@ -16,7 +16,7 @@
     </div>
     <div class="mb-3">
         <label for="username">Username</label>
-        <input
+        <input required
             type="text"
             class="form-control"
             id="username"
@@ -25,7 +25,7 @@
     </div>
     <div class="mb-3">
         <label for="password1">Password - must include 1 Number, Uppercase, and Lowercase Letter (at least 7 characters long)</label>
-        <input
+        <input required
             type="password"
             class="form-control"
             id="password1"
@@ -34,7 +34,7 @@
     </div>
     <div class="mb-3">
         <label for="password2">Re-Type Password</label>
-        <input
+        <input required
             type="password"
             class="form-control"
             id="password2"

@@ -15,7 +15,7 @@
         </div>
 <!--                <hr style="margin:0px;">-->
         <div class="accordion-body">
-            {% if attendance_list != [] %}
+            {% if attendance_list %}
                 <table class="table">
                     <thead class="thead-dark">
                     <tr>
@@ -45,7 +45,7 @@
                     </thead>
                 </table>
             {% else %}
-                <h2 style="text-align:center;">No Match Found</h2>
+                <h2 style="text-align:center;">No Attendance Records</h2>
             {% endif %}
         </div>
     </div>

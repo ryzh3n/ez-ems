@@ -89,7 +89,7 @@ def prompt_configurations(install_method, write_method):  # Prompts for user val
         print("Using default values for Mysql Password (" + Fore.YELLOW + "rfid12345" + Fore.RESET + ")")
         Configurations['mysql_password'] = 'dbadmin123'
         print("Using default values for Mysql Database Name (" + Fore.YELLOW + "rfid" + Fore.RESET + ")")
-        Configurations['mysql_db_name'] = 'gcs_rbms'
+        Configurations['mysql_db_name'] = 'fyp_ez_ems'
     elif install_method == "2":
         print("[" + Fore.BLUE + "Custom Installation" + "]")
         Configurations['host'] = input("Enter Host IP: ")
@@ -170,7 +170,7 @@ def check_configurations():
         return check_configurations()
 
 
-print("[" + Fore.CYAN + "Room Booking Management System" + Fore.RESET + "]")
+print("[" + Fore.CYAN + "EZ-EMS" + Fore.RESET + "]")
 print("Loading Settings...")
 
 conf = check_configurations()

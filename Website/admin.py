@@ -6,23 +6,45 @@ from . import db
 from sqlalchemy import or_, and_, not_
 import os
 from werkzeug.utils import secure_filename
+import flask
 
 from .models import Attendance_Rules, App_Settings, Departments, Employee_Profiles, Departments_JobPositions, \
     Attendance_List, Notifications, UserAccounts, Employee_Tasks, Employee_Tasks_Assignments, Payroll_Payslips, \
-    Employee_Payrolls, Employee_Tickets, Employee_Tickets_Chats, Payroll_Modifiers
+    Employee_Payrolls, Employee_Tickets, Employee_Tickets_Chats, Payroll_Modifiers, Attendance_Machines, Admin_SystemLog
 from .auth import check_password_hash, generate_password_hash
 import datetime
 
 admin = Blueprint('admin', __name__, url_prefix='/admin_panel')
 
-from .views import UPLOAD_FOLDER, allowed_file
+UPLOAD_FOLDER = r'D:\PythonProjects\FYP EZ-EMS\Website\static\uploads\employee_profile_pic'
+ALLOWED_EXTENSIONS = {'txt', 'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 now = datetime.datetime.now()  # Define global variable, can then be used in every function
+
+
+def record_log(action):
+    date = datetime.datetime.now().strftime('%d-%m-%Y')
+    time = datetime.datetime.now().strftime('%I:%M:%S %p')
+    ip = flask.request.remote_addr
+    new_log = Admin_SystemLog(
+        date=date,
+        time=time,
+        ip=ip,
+        action=action
+    )
+    db.session.add(new_log)
+    db.session.commit()
+    print(f'{ip} - - [{date} {time}] - {action}')
 
 
 @admin.route('/general_settings', methods=['GET', 'POST'])
 @login_required
 def general_settings():
+    record_log(f'{current_user.username} viewed /admin_panel/general_settings')
     if current_user.role == 'user':
         return redirect(url_for('views.home'))
     attendance_rules = Attendance_Rules.query.all()  # Get all data from AttendanceRules
@@ -53,8 +75,14 @@ def general_settings():
                 )
                 db.session.add(new_attendance_rule)
                 db.session.commit()
+                record_log(f'{current_user.username} added a new attendance rule #{new_attendance_rule.id}')
         elif action == 'new_department':  # Adding new department & positions
             department_name = request.form.get('department_name')
+            check_department_name = Departments.query.filter(
+                Departments.name == department_name
+            ).first()
+            if check_department_name:
+                flash('Department Name Exists.', category='error')
             days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']  # Defining preset days, to be chose for workdays
             workdays = []  # First, there are no workdays selected yet
             for day in days:  # Looping each value in days
@@ -79,6 +107,7 @@ def general_settings():
                 )
                 db.session.add(new_position)  # For each line of positions input by user, insert into DB
             db.session.commit()
+            record_log(f'{current_user.username} added a new attendance rule #{new_department.id}')
             flash('New Department Added Successfully.', category='success')
         return redirect(url_for('admin.general_settings')) \
             # Redirect User back to /admin_panel/general_settings to see the changes made
@@ -115,19 +144,26 @@ def search_query(model_class, search_value, **kwargs):  # A function to search f
     except:
         pass
 
+    record_log(f'{current_user.username} searched for "{search_value}" in the {str(model_class.__name__)} table')
     return filters  # Return the final results
 
 
 @admin.route('/attendance_list', methods=['GET', 'POST'])
 @login_required
 def attendance_list():
+    record_log(f'{current_user.username} viewed /admin_panel/attendance_list')
+    if current_user.role == 'user':
+        return redirect(url_for('views.home'))
     attendance_list = Attendance_List.query.all()  # Get all data from AttendanceList
+    if attendance_list:
+        attendance_list = reversed(attendance_list)
     if request.method == 'GET':
         search = request.args.get('search')
         if search:  # If ?search= argument exists in the url
             filters = search_query(Attendance_List,
                                    search,
                                    search_columns=['date',
+                                                   'day',
                                                    'date',
                                                    'checkin_time',
                                                    'checkout_time',
@@ -143,13 +179,16 @@ def attendance_list():
     return render_template('admin_attendance_list.html',
                            user=current_user,
                            search_value=search,
-                           attendance_list=reversed(attendance_list)
+                           attendance_list=attendance_list
                            )
 
 
 @admin.route('/employee_profiles', methods=['GET', 'POST'])
 @login_required
 def employee_profiles():
+    record_log(f'{current_user.username} viewed /admin_panel/employee_profiles')
+    if current_user.role == 'user':
+        return redirect(url_for('views.home'))
     employee_profiles = Employee_Profiles.query.all()  # Get all data from EmployeeProfiles
     departments = Departments.query.all()  # Get all data from Departments
     search = ''
@@ -188,6 +227,7 @@ def employee_profiles():
             ).first()  # Get payroll data based on the id
             from .views import get_att_rate, get_task_rate
             if action == 'view':  # If action?=view exists in the url
+                record_log(f'{current_user.username} viewed employee profile of {profile.name} ')
                 return render_template('admin_view_profile_details.html',
                                        user=current_user,
                                        profile=profile,
@@ -291,6 +331,8 @@ def employee_profiles():
                     file.save(os.path.join(UPLOAD_FOLDER, str(new_employee.id) + "." + file_extension)) \
                         # After assigning the file name (followed by the employee_id) of the profile picture, \
                     # save the profile picture into the directory
+                    record_log(
+                        f'{current_user.username} added a new employee profile #{new_employee.id}-{new_employee.name}')
                     flash('New Employee Added Successfully.', category='success')
                     return redirect(url_for('admin.employee_profiles'))
         elif action == 'edit_employee_details':  # Updating the info of the employee
@@ -323,6 +365,8 @@ def employee_profiles():
             editing_employee_payroll.bonus = request.form.get('bonus')
             db.session.commit()
             flash('Saved', category='success')
+            record_log(
+                f'{current_user.username} made changes to employee profile of #{editing_employee.id} - {editing_employee.name}')
             return redirect((request.url[:-4] + 'view'))  # /employeeprofiles?id=(id)&action=view
     return render_template('admin_employee_profiles.html',
                            user=current_user,
@@ -335,7 +379,12 @@ def employee_profiles():
 @admin.route('/employee_tickets', methods=['GET', 'POST'])
 @login_required
 def employee_tickets():
+    record_log(f'{current_user.username} viewed /admin_panel/employee_tickets')
+    if current_user.role == 'user':
+        return redirect(url_for('views.home'))
     employee_tickets = Employee_Tickets.query.all()
+    if employee_tickets:
+        employee_tickets = reversed(employee_tickets)
     if request.method == 'GET':
         search = request.args.get('search')
         if search:
@@ -379,7 +428,7 @@ def process_receivers(**outer_kwargs):
 
     def distribute(**inner_kwargs):
         # This is where is starts to send messages to each individuals
-        # the variable 't' is a for loop variable at line 425,
+        # the variable 't' is a for loop variable at the bottom of this function,
         # so this function can only be used in the designated for loop
         # 't' stands for each List in total_receivers (the nested List)
         if inner_kwargs['class_model'] == Departments:  # To send message in a department
@@ -444,13 +493,19 @@ def process_receivers(**outer_kwargs):
             distribute(class_model=Departments_JobPositions)
         elif t[0] == 'e':  # If Type is Employee
             distribute(class_model=Employee_Profiles)
+    record_log(f'{current_user.username} has distributed {category}(s) to {receivers_names}')
     db.session.commit()
 
 
 @admin.route('/notification_center', methods=['GET', 'POST'])
 @login_required
 def notification_center():
+    record_log(f'{current_user.username} viewed /admin_panel/notification_center')
+    if current_user.role == 'user':
+        return redirect(url_for('views.home'))
     notifications = Notifications.query.all()
+    if notifications:
+        notifications = reversed(notifications)
     search = ''
     if request.method == 'GET':
         search = request.args.get('search')
@@ -483,13 +538,16 @@ def notification_center():
     return render_template('admin_notification_center.html',
                            user=current_user,
                            search_value=search,
-                           notifications=reversed(notifications)
+                           notifications=notifications
                            )
 
 
 @admin.route('/task_assignment', methods=['GET', 'POST'])
 @login_required
 def task_assignment():
+    record_log(f'{current_user.username} viewed /admin_panel/task_assignment')
+    if current_user.role == 'user':
+        return redirect(url_for('views.home'))
     employee_tasks = Employee_Tasks.query.all()
     search = request.args.get('search')
     if request.method == 'GET':
@@ -539,6 +597,9 @@ def task_assignment():
 @admin.route('/payroll_settings', methods=['GET', 'POST'])
 @login_required
 def payroll_settings():
+    record_log(f'{current_user.username} viewed /admin_panel/payroll_settings')
+    if current_user.role == 'user':
+        return redirect(url_for('views.home'))
     formula = 'base_salary - base_salary(epf + socso) + allowance + bonus'  # Fixed Formula
     payroll_modifiers = Payroll_Modifiers.query.all()  # Get all data from PayrollModifiers
     payroll_payslips = Payroll_Payslips.query.all()  # Get all data from PayrollPayslips
@@ -552,8 +613,12 @@ def payroll_settings():
             socso = Payroll_Modifiers.query.filter(
                 Payroll_Modifiers.id == 2
             ).first()  # Fetch the DB record containing the value of socso
-            epf.value = request.form.get('variable_value_1')  # Update the value of epf
-            socso.value = request.form.get('variable_value_2')  # Update the value of socso
+            new_epf = request.form.get('variable_value_1')
+            epf.value = new_epf  # Update the value of epf
+            new_socso = request.form.get('variable_value_2')
+            socso.value = new_socso  # Update the value of socso
+            record_log(
+                f'{current_user.username} made changes to formula variables, epf ({epf.value} -> {new_epf}), socso ({socso.value} -> {new_socso})')
             db.session.commit()
         elif section == 'payslip':
             process_receivers(receivers_names=request.form.get('total_receivers').split(', '),
@@ -561,10 +626,73 @@ def payroll_settings():
                               category='payslip',
                               amount=request.form.get('amount'),
                               description=request.form.get('description'))
-        return redirect(url_for('admin.payroll_settings'))
+            return redirect(url_for('admin.payroll_settings'))
     return render_template('admin_payroll_settings.html',
                            user=current_user,
                            formula=formula,
                            payroll_modifiers=payroll_modifiers,
                            payroll_payslips=reversed(payroll_payslips)
                            )
+
+
+@admin.route('/attendance_machines', methods=['GET', 'POST'])
+@login_required
+def attendance_machines():
+    record_log(f'{current_user.username} viewed /admin_panel/attendance_machines')
+    if current_user.role == 'user':
+        return redirect(url_for('views.home'))
+    machines = Attendance_Machines.query.all()
+    if request.method == 'POST':
+        location = request.form.get('location')
+        name = request.form.get('name')
+        installation_date = now.strftime('%d-%m-%Y')
+        installation_time = now.strftime('%I:%M:%S %p')
+        import random
+        import string
+        letters = string.ascii_letters + string.digits
+        auth_key = ''.join(random.choice(letters) for i in range(20))
+        new_machine = Attendance_Machines(
+            name=name,
+            location=location,
+            installation_date=installation_date,
+            installation_time=installation_time,
+            auth_key=auth_key
+        )
+        db.session.add(new_machine)
+        db.session.commit()
+        flash('New Attendance Machine registered successfully', category='success')
+        return redirect(url_for('admin.attendance_machines'))
+    return render_template('admin_attendance_machines.html',
+                           user=current_user,
+                           machines=machines)
+
+
+@admin.route('/system_logging', methods=['POST', 'GET'])
+@login_required
+def system_log():
+    record_log(f'{current_user.username} viewed /admin_panel/system_logging')
+    if current_user.role == 'user':
+        return redirect(url_for('views.home'))
+    logs = Admin_SystemLog.query.all()
+    search = request.args.get('search')
+    if request.method == 'GET':
+        if search:
+            filters = search_query(Admin_SystemLog,
+                                   search,
+                                   search_columns=['id',
+                                                   'date',
+                                                   'time',
+                                                   'action'])
+            logs = Admin_SystemLog.query.filter(
+                or_(
+                    *filters
+                )
+            ).all()
+        else:
+            search = ''
+    if logs:
+        logs = reversed(logs)
+    return render_template('admin_systemlog.html',
+                           user=current_user,
+                           search=search,
+                           logs=logs)

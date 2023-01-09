@@ -134,23 +134,43 @@
 
   <div class="col" style="max-width:400px;">
 
+      <div id="view_payslip_modal" class="modal fade">
+        <div class="modal-dialog">
+            <div id="payslip_content" class="modal-content">
+                1
+            </div>
+        </div>
+    </div>
       <div class="accordion" id="accordionCalendar">
           <div class="accordion-item">
               <h2 class="accordion-header" id="headingCalendar">
                   <button class="accordion-button">
-                      Calendar
+                      Pay Slips
                   </button>
               </h2>
               <div class="accordion-body">
-                  <h2>test</h2>
-                  <h2>test</h2>
-                  <h2>test</h2>
-                  <h2>test</h2>
-                  <h2>test</h2>
-                  <h2>test</h2>
-                  <h2>test</h2>
-                  <h2>test</h2>
-                  <h2>test</h2>
+                  {% if payslips %}
+                  <table class="table table-hover">
+                      <thead class="thead-dark">
+                          <tr>
+                              <td>Amount</td>
+                              <td>Date Time</td>
+                          </tr>
+                      </thead>
+                      <tbody>
+                      {% for row in payslips %}
+                          <tr class="row-item" onclick="readPayslip('{{row.id}}')" data-toggle="modal" data-target="#view_payslip_modal">
+                              <td>{{row.total_pay_amount}}</td>
+                              <td>
+                                  <input class="form-control" readonly type="datetime-local" value="{{row.datetime}}">
+                              </td>
+                          </tr>
+                      </tbody>
+                    {% endfor %}
+                  </table>
+                  {% else %}
+                  <h3>No Payslips</h3>
+                  {% endif %}
               </div>
           </div>
       </div>

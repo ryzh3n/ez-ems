@@ -58,7 +58,7 @@
                         <label class="form-label">Enter the following details appropriately.</label>
                         <div class="mb-3">
                             <label class="form-label">Name: </label>
-                            <input class="form-control" type="text" name="department_name">
+                            <input class="form-control" type="text" name="department_name" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Workdays: </label>
@@ -93,19 +93,19 @@
                             <label class="form-label">Work Hours:</label>
                             <div class="row">
                                 <div class="col-sm-5">
-                                    <input class="form-control" type="time" name="start_time">
+                                    <input class="form-control" type="time" name="start_time" required>
                                 </div>
                                 <div class="col-sm-2">
                                     <h3>Till</h3>
                                 </div>
                                 <div class="col-sm-5">
-                                    <input class="form-control" type="time" name="end_time">
+                                    <input class="form-control" type="time" name="end_time" required>
                                 </div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Available Positions: </label>
-                            <textarea class="form-control" id="description" name="positions" rows="5" placeholder="One job position per line"></textarea>
+                            <textarea required class="form-control" id="description" name="positions" rows="5" placeholder="One job position per line"></textarea>
                         </div>
 
                         <div style="text-align:center;">
@@ -221,37 +221,6 @@
 
 <br>
 
-<!--        General Settings - App Settings-->
-<div class="accordion" id="accordionAppSettings">
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingAppSettings">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAppSettings" aria-expanded="true" aria-controls="collapseAppSettings">
-                App Settings
-            </button>
-        </h2>
-        <div id="collapseAppSettings" class="accordion-collapse collapse show" aria-labelledby="headingAppSettings" data-bs-parent="#accordionAppSettings">
-            <div class="accordion-body">
-                <table class="table">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Variable</th>
-                            <th>Name</th>
-                            <th>Value</th>
-                        </tr>
-                        {% for row in app_settings %}
-                        <tr>
-                            <td>{{row.id}}</td>
-                            <td>{{row.var}}</td>
-                            <td>{{row.name}}</td>
-                            <td>{{row.value}}</td>
-                        </tr>
-                        {% endfor %}
-                    </thead>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 {% endblock %}
